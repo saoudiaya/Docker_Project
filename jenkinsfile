@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Build and Test Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'docker build -t frontend-service .'
+                    sh 'docker run --rm frontend-service npm test'
+                }
+            }
+        }
+
+        stage('Build and Test SVM Service') {
+            steps {
+                dir('svm_service') {
+                    sh 'docker build -t svm-service .'
+                    sh 'docker run --rm svm-service pytest -v test_svm_service.py'
+                }
+            }
+        }
+
+        stage('Build and Test VGG Service') {
+            steps {
+                dir('vgg_service') {
+                    sh 'docker build -t vgg-service .'
+                    sh 'docker run --rm vgg-service pytest -v test_vgg_service.py'
+                }
+            }
+        }
+
+        stage('Deployment') {
+            steps {
+                sh 'docker-compose up -d --build'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker-compose down'
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}

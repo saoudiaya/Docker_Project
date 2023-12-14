@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+</head>
+<body>
+    <h2>Service SVM</h2>
+    <form id="svmUploadForm">
+        <input type="file" id="svmMusicFile" name="audioFile" accept=".wav">
+        <button type="button" id="predictSVMButton">Upload and Predict (SVM)</button>
+    </form>
+    <div id="svmPredictionResult"></div>
+
+    <h2>Service VGG19</h2>
+    <form id="vggUploadForm">
+        <input type="file" id="vggImageFile" name="imageFile" accept="image/*">
+        <button type="button" id="predictVGGButton">Upload and Predict (VGG19)</button>
+    </form>
+    <div id="vggPredictionResult"></div>
+
+    <script>
+    document.getElementById('predictSVMButton').addEventListener('click', function() {
+        const fileInput = document.getElementById('svmMusicFile');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            console.error('No file selected!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('audioFile', file); // Send the file as 'audioFile'
+
+        fetch('/make_prediction', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const predictionResult = document.getElementById('svmPredictionResult');
+            predictionResult.innerHTML = `Predicted genre: ${data.prediction}`;;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle error
+        });
+    });
+
+    document.getElementById('predictVGGButton').addEventListener('click', function() {
+        const fileInput = document.getElementById('vggImageFile');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            console.error('No file selected!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('imageFile', file); // Send the file as 'imageFile'
+
+        fetch('/predict_vgg19', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const predictionResult = document.getElementById('vggPredictionResult');
+            predictionResult.innerHTML = `Predicted genre: ${data.prediction}`;;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle error
+        });
+    });
+    </script>
+</body>
+</html>

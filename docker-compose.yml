@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  svm-service:
+    build: ./FluskProjectBackendSVM
+    ports:
+      - "5000:5000"
+    volumes:
+      - shared-models:/app/models  # Utilisation d'un volume nommé partagé pour les modèles
+
+  frontend-service:
+    build: ./FluskProjectFrontend
+    ports:
+      - "8000:8000"
+    volumes:
+      - shared-models:/app/models  # Utilisation du même volume nommé pour les modèles
+
+  vgg19-service:
+    build: ./FluskProjectBackendVGG
+    ports:
+      - "6000:6000"
+    volumes:
+      - shared-models:/app/models  # Utilisation du même volume nommé pour les modèles
+
+  tests: 
+    build: ./tests
+    depends_on:
+      - frontend-service
+      - svm-service
+      - vgg19-service
+
+volumes:
+  shared-models:  # Volume nommé partagé pour les modèles
